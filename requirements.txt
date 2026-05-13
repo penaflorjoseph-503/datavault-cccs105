@@ -1,0 +1,5 @@
+flask>=3.0
+mysql-connector-python>=8.3
+bcrypt>=4.1
+openpyxl>=3.1      # for Excel export (optional but recommended)
+matplotlib>=3.8    # only needed to regenerate diagrams

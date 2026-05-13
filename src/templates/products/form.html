@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('products.index') }}" class="btn btn--ghost btn--sm">
+  <i class="fa-solid fa-arrow-left"></i> Back to Products
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:860px;">
+  {% if errors %}
+  <div class="form-error">
+    <strong><i class="fa-solid fa-triangle-exclamation"></i> Please fix the following:</strong>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <form method="POST" novalidate>
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="name">Product Name *</label>
+        <input type="text" id="name" name="name" required
+               value="{{ form.get('name', '') }}" placeholder="e.g. Wireless Mouse" />
+      </div>
+
+      <div class="form-group">
+        <label for="sku">SKU *</label>
+        <input type="text" id="sku" name="sku" required
+               value="{{ form.get('sku', '') }}" placeholder="e.g. PRD-011" />
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category *</label>
+        <select id="category" name="category" required>
+          <option value="">Select category…</option>
+          {% for c in categories %}
+          <option value="{{ c }}" {% if form.get('category') == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price (₱) *</label>
+        <input type="number" id="price" name="price" step="0.01" min="0" required
+               value="{{ form.get('price', '') }}" placeholder="e.g. 29.99" />
+      </div>
+
+      <div class="form-group">
+        <label for="stock">Stock Quantity *</label>
+        <input type="number" id="stock" name="stock" min="0" required
+               value="{{ form.get('stock', '') }}" placeholder="e.g. 100" />
+      </div>
+
+      <div class="form-group form-group--full">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" placeholder="Optional product description…">{{ form.get('description', '') }}</textarea>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary">
+        <i class="fa-solid fa-floppy-disk"></i> {{ 'Update Product' if product is defined else 'Save Product' }}
+      </button>
+      <a href="{{ url_for('products.index') }}" class="btn btn--ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

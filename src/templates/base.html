@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}DataVault{% endblock %} — DataVault DBMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+{% if session.user_id %}
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon"><i class="fa-solid fa-database"></i></span>
+    <span class="brand-text">DataVault</span>
+  </div>
+
+  <div class="sidebar-section-label">Navigation</div>
+  <ul class="sidebar-nav">
+    <li>
+      <a href="{{ url_for('dashboard.index') }}" class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('employees.index') }}" class="nav-link {% if 'employees' in request.endpoint %}active{% endif %}">
+        <i class="fa-solid fa-users"></i> Employees
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('products.index') }}" class="nav-link {% if 'products' in request.endpoint %}active{% endif %}">
+        <i class="fa-solid fa-box-open"></i> Products
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-section-label">Account</div>
+  <ul class="sidebar-nav">
+    <li>
+      <a href="{{ url_for('auth.logout') }}" class="nav-link nav-link--danger">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <span class="user-avatar">{{ session.username[0].upper() }}</span>
+      <div>
+        <div class="user-name">{{ session.username }}</div>
+        <div class="user-role">{{ session.role }}</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main wrapper -->
+<div class="main-wrapper">
+  <header class="topbar">
+    <button class="topbar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <h1 class="topbar-title">{% block page_title %}{% endblock %}</h1>
+    <div class="topbar-actions">{% block topbar_actions %}{% endblock %}</div>
+  </header>
+
+  <main class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert--{{ category }}">
+          <i class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'danger' %}fa-circle-xmark{% else %}fa-circle-info{% endif %}"></i>
+          {{ message }}
+          <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+{% else %}
+<!-- Auth pages — no sidebar -->
+<main class="auth-wrapper">
+  {% block auth_content %}{% endblock %}
+</main>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

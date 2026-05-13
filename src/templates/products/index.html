@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('products.create') }}" class="btn btn--primary btn--sm">
+  <i class="fa-solid fa-plus"></i> Add Product
+</a>
+{% endblock %}
+
+{% block content %}
+<form method="GET" class="toolbar">
+  <div class="search-wrap">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" name="q" placeholder="Search name, SKU, description…" value="{{ q }}" />
+  </div>
+  <select name="category" class="filter-select" onchange="this.form.submit()">
+    <option value="">All Categories</option>
+    {% for c in categories %}
+    <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn--ghost btn--sm"><i class="fa-solid fa-filter"></i> Filter</button>
+  {% if q or category %}
+  <a href="{{ url_for('products.index') }}" class="btn btn--ghost btn--sm">
+    <i class="fa-solid fa-xmark"></i> Clear
+  </a>
+  {% endif %}
+
+  <a href="{{ url_for('export.export_csv', table='products', q=q, category=category) }}"
+     class="btn btn--success btn--sm" style="margin-left:auto;">
+    <i class="fa-solid fa-file-csv"></i> CSV
+  </a>
+  <a href="{{ url_for('export.export_excel', table='products', q=q, category=category) }}"
+     class="btn btn--success btn--sm">
+    <i class="fa-solid fa-file-excel"></i> Excel
+  </a>
+</form>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Name</th><th>SKU</th><th>Category</th>
+        <th>Price</th><th>Stock</th><th>Updated</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if rows %}
+      {% for prod in rows %}
+      <tr>
+        <td class="td-muted">{{ prod.id }}</td>
+        <td><strong>{{ prod.name }}</strong></td>
+        <td><span class="badge badge--blue">{{ prod.sku }}</span></td>
+        <td>{{ prod.category }}</td>
+        <td>₱ {{ '{:,.2f}'.format(prod.price) }}</td>
+        <td>
+          {% if prod.stock < 20 %}
+          <span class="badge badge--red">{{ prod.stock }}</span>
+          {% elif prod.stock < 50 %}
+          <span class="badge badge--yellow">{{ prod.stock }}</span>
+          {% else %}
+          {{ prod.stock }}
+          {% endif %}
+        </td>
+        <td class="td-muted">{{ prod.updated_at }}</td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn btn--ghost btn--sm"
+                    onclick="openViewModal('{{ url_for('products.get_json', pid=prod.id) }}')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <a href="{{ url_for('products.edit', pid=prod.id) }}" class="btn btn--ghost btn--sm">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </a>
+            <form id="del-prod-{{ prod.id }}" method="POST"
+                  action="{{ url_for('products.delete', pid=prod.id) }}">
+              <button type="button" class="btn btn--danger btn--sm"
+                      onclick="confirmDelete('del-prod-{{ prod.id }}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="8" style="text-align:center;padding:40px;color:var(--text-2);">
+          <i class="fa-solid fa-box-open" style="font-size:2rem;margin-bottom:10px;display:block;color:var(--text-3);"></i>
+          No products found.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}
+  <a href="?page={{ page-1 }}&q={{ q }}&category={{ category }}" class="page-btn"><i class="fa-solid fa-chevron-left"></i></a>
+  {% endif %}
+  {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+    <span class="page-btn active">{{ p }}</span>
+    {% elif p <= 2 or p >= total_pages - 1 or (p >= page - 1 and p <= page + 1) %}
+    <a href="?page={{ p }}&q={{ q }}&category={{ category }}" class="page-btn">{{ p }}</a>
+    {% elif p == 3 and page > 4 %}
+    <span class="page-info">…</span>
+    {% elif p == total_pages - 2 and page < total_pages - 3 %}
+    <span class="page-info">…</span>
+    {% endif %}
+  {% endfor %}
+  {% if page < total_pages %}
+  <a href="?page={{ page+1 }}&q={{ q }}&category={{ category }}" class="page-btn"><i class="fa-solid fa-chevron-right"></i></a>
+  {% endif %}
+  <span class="page-info">{{ total }} record(s)</span>
+</div>
+{% else %}
+<div style="margin-top:12px;color:var(--text-3);font-size:.82rem;">{{ total }} record(s)</div>
+{% endif %}
+
+<!-- View Modal -->
+<div class="modal-backdrop" id="viewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Product Details</span>
+      <button class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="viewModalBody"><p style="color:var(--text-2);">Loading…</p></div>
+  </div>
+</div>
+{% endblock %}

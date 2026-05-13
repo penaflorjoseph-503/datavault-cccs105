@@ -1,0 +1,49 @@
+# ── Python ──────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ─────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# ── Environment / secrets ────────────────────────────────────────
+# NEVER commit real credentials or API keys
+.env
+*.env
+secrets.py
+
+# ── IDE / editor ─────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# ── Flask ────────────────────────────────────────────────────────
+instance/
+flask_session/
+
+# ── Logs ─────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Database dumps (never commit live data) ──────────────────────
+*.sql.bak
+*.dump
+
+# ── OS ───────────────────────────────────────────────────────────
+.DS_Store
+ehthumbs.db
+Desktop.ini

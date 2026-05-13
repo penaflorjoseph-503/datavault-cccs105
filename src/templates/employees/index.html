@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Employees{% endblock %}
+{% block page_title %}Employees{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('employees.create') }}" class="btn btn--primary btn--sm">
+  <i class="fa-solid fa-user-plus"></i> Add Employee
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Toolbar -->
+<form method="GET" class="toolbar">
+  <div class="search-wrap">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" name="q" placeholder="Search name, email, position…" value="{{ q }}" />
+  </div>
+  <select name="dept" class="filter-select" onchange="this.form.submit()">
+    <option value="">All Departments</option>
+    {% for d in departments %}
+    <option value="{{ d }}" {% if dept == d %}selected{% endif %}>{{ d }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn--ghost btn--sm"><i class="fa-solid fa-filter"></i> Filter</button>
+  {% if q or dept %}
+  <a href="{{ url_for('employees.index') }}" class="btn btn--ghost btn--sm">
+    <i class="fa-solid fa-xmark"></i> Clear
+  </a>
+  {% endif %}
+
+  <!-- Export buttons -->
+  <a href="{{ url_for('export.export_csv', table='employees', q=q, dept=dept) }}"
+     class="btn btn--success btn--sm" style="margin-left:auto;">
+    <i class="fa-solid fa-file-csv"></i> CSV
+  </a>
+  <a href="{{ url_for('export.export_excel', table='employees', q=q, dept=dept) }}"
+     class="btn btn--success btn--sm">
+    <i class="fa-solid fa-file-excel"></i> Excel
+  </a>
+</form>
+
+<!-- Table -->
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Name</th><th>Email</th><th>Department</th>
+        <th>Position</th><th>Salary</th><th>Hire Date</th><th>Status</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if rows %}
+      {% for emp in rows %}
+      <tr>
+        <td class="td-muted">{{ emp.id }}</td>
+        <td><strong>{{ emp.first_name }} {{ emp.last_name }}</strong></td>
+        <td class="td-muted">{{ emp.email }}</td>
+        <td>{{ emp.department }}</td>
+        <td>{{ emp.position }}</td>
+        <td>₱ {{ '{:,.2f}'.format(emp.salary) }}</td>
+        <td class="td-muted">{{ emp.hire_date }}</td>
+        <td>
+          <span class="badge {% if emp.status == 'active' %}badge--green{% else %}badge--red{% endif %}">
+            {{ emp.status }}
+          </span>
+        </td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn btn--ghost btn--sm"
+                    onclick="openViewModal('{{ url_for('employees.get_json', emp_id=emp.id) }}')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <a href="{{ url_for('employees.edit', emp_id=emp.id) }}" class="btn btn--ghost btn--sm">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </a>
+            <form id="del-emp-{{ emp.id }}" method="POST"
+                  action="{{ url_for('employees.delete', emp_id=emp.id) }}">
+              <button type="button" class="btn btn--danger btn--sm"
+                      onclick="confirmDelete('del-emp-{{ emp.id }}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="9" style="text-align:center;padding:40px;color:var(--text-2);">
+          <i class="fa-solid fa-users" style="font-size:2rem;margin-bottom:10px;display:block;color:var(--text-3);"></i>
+          No employees found.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}
+  <a href="?page={{ page-1 }}&q={{ q }}&dept={{ dept }}" class="page-btn"><i class="fa-solid fa-chevron-left"></i></a>
+  {% endif %}
+
+  {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+    <span class="page-btn active">{{ p }}</span>
+    {% elif p <= 2 or p >= total_pages - 1 or (p >= page - 1 and p <= page + 1) %}
+    <a href="?page={{ p }}&q={{ q }}&dept={{ dept }}" class="page-btn">{{ p }}</a>
+    {% elif p == 3 and page > 4 %}
+    <span class="page-info">…</span>
+    {% elif p == total_pages - 2 and page < total_pages - 3 %}
+    <span class="page-info">…</span>
+    {% endif %}
+  {% endfor %}
+
+  {% if page < total_pages %}
+  <a href="?page={{ page+1 }}&q={{ q }}&dept={{ dept }}" class="page-btn"><i class="fa-solid fa-chevron-right"></i></a>
+  {% endif %}
+
+  <span class="page-info">{{ total }} record(s)</span>
+</div>
+{% else %}
+<div style="margin-top:12px;color:var(--text-3);font-size:.82rem;">{{ total }} record(s)</div>
+{% endif %}
+
+<!-- View Detail Modal -->
+<div class="modal-backdrop" id="viewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Employee Details</span>
+      <button class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="viewModalBody"><p style="color:var(--text-2);">Loading…</p></div>
+  </div>
+</div>
+{% endblock %}

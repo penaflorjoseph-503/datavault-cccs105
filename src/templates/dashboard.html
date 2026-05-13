@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+{% if stats.error %}
+<div class="alert alert--danger"><i class="fa-solid fa-circle-xmark"></i> {{ stats.error }}</div>
+{% endif %}
+
+<!-- Stat tiles -->
+<div class="stat-grid">
+  <div class="stat-tile">
+    <div class="stat-icon stat-icon--blue"><i class="fa-solid fa-users"></i></div>
+    <div>
+      <div class="stat-value">{{ stats.total_employees or 0 }}</div>
+      <div class="stat-label">Total Employees</div>
+    </div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-icon stat-icon--green"><i class="fa-solid fa-user-check"></i></div>
+    <div>
+      <div class="stat-value">{{ stats.active_employees or 0 }}</div>
+      <div class="stat-label">Active Employees</div>
+    </div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-icon stat-icon--yellow"><i class="fa-solid fa-box-open"></i></div>
+    <div>
+      <div class="stat-value">{{ stats.total_products or 0 }}</div>
+      <div class="stat-label">Products</div>
+    </div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-icon stat-icon--red"><i class="fa-solid fa-cubes"></i></div>
+    <div>
+      <div class="stat-value">{{ stats.total_stock or 0 }}</div>
+      <div class="stat-label">Total Stock Units</div>
+    </div>
+  </div>
+</div>
+
+<div class="two-col">
+  <!-- Employees by dept -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fa-solid fa-chart-bar" style="color:var(--accent);margin-right:8px;"></i>Employees by Department</span>
+    </div>
+    {% if stats.by_dept %}
+    {% set max_cnt = stats.by_dept[0].cnt %}
+    <div class="dept-bar-wrap">
+      {% for row in stats.by_dept %}
+      <div class="dept-row">
+        <div class="dept-label-row">
+          <span>{{ row.department }}</span>
+          <span style="color:var(--text-2);">{{ row.cnt }}</span>
+        </div>
+        <div class="dept-bar-track">
+          <div class="dept-bar-fill" style="width:0" data-width="{{ (row.cnt / max_cnt * 100)|int }}"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--text-2);font-size:.88rem;">No data yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Recent activity -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);margin-right:8px;"></i>Recent Activity</span>
+    </div>
+    {% if stats.recent_activity %}
+    <div class="activity-list">
+      {% for log in stats.recent_activity %}
+      <div class="activity-item">
+        <span class="activity-dot activity-dot--{{ log.action }}"></span>
+        <div class="activity-text">
+          <strong style="color:var(--text);">{{ log.action }}</strong>
+          on <span style="color:var(--accent);">{{ log.table_name }}</span>
+          {% if log.description %} — {{ log.description }}{% endif %}
+          {% if log.username %} <span style="color:var(--text-3);">by {{ log.username }}</span>{% endif %}
+        </div>
+        <div class="activity-time">{{ log.created_at }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--text-2);font-size:.88rem;">No activity recorded yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Quick links -->
+<div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+  <a href="{{ url_for('employees.create') }}" class="btn btn--primary">
+    <i class="fa-solid fa-user-plus"></i> Add Employee
+  </a>
+  <a href="{{ url_for('products.create') }}" class="btn btn--ghost">
+    <i class="fa-solid fa-plus"></i> Add Product
+  </a>
+  <a href="{{ url_for('employees.index') }}" class="btn btn--ghost">
+    <i class="fa-solid fa-users"></i> View Employees
+  </a>
+  <a href="{{ url_for('products.index') }}" class="btn btn--ghost">
+    <i class="fa-solid fa-box-open"></i> View Products
+  </a>
+</div>
+{% endblock %}
