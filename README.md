@@ -440,7 +440,7 @@ python generate_diagrams.py
 
 ## Video Presentation
 
-> 📹 **[Insert YouTube / Google Drive link here]**
+> 📹 **[Watch our Video Presentation on YouTube](https://youtu.be/jmBMNewKTQM)**
 
 Covers: project overview, full feature demo, database design, challenges, and future improvements.
 
