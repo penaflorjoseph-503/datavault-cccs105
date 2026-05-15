@@ -356,7 +356,7 @@ http://localhost:5000
 
 | Name | Role | Responsibilities |
 |------|------|-----------------|
-| **Joseph Ryan Peñaflor** | Flask Backend Developer | Application routing, database connectivity, user authentication, CRUD logic, data export, `app.py`, `db.py`, `config.py`, and all files inside `routes/ |
+| **Joseph Ryan Peñaflor** | Flask Backend Developer | Application routing, database connectivity, user authentication, CRUD logic, data export, `app.py`, `db.py`, `config.py`, and all files inside `routes/` |
 | **Carla Eloisa Relorcasa** | Frontend Developer | HTML templates, Jinja2 templating, UI layout and design, CSS dark theme stylesheet, JavaScript interactions, `base.html`, `main.css`, `main.js` |
 | **Dean Victor Flores** | Database Developer | MySQL schema design, ERD and Relational Model diagrams, sample data, `schema.sql`, `initial_data.sql`, database configuration and phpMyAdmin setup |
 
